@@ -28,6 +28,8 @@ static symbol_entry *hash_array;
 static symbol_entry *hash_chain;
 static int next_col_entry; // Next entry in the collision area
 
+int sym_nil;
+
 void symbol_init()
 {
     hash_array = malloc((SYMHASHSIZE+COLAREASIZE) * sizeof(symbol_entry));
@@ -41,6 +43,9 @@ void symbol_init()
 
     // Collision area is just after the hash table
     next_col_entry = SYMHASHSIZE;
+
+    // Predefined symbols
+    sym_nil = symbol_intern("nil");
 }
 
 int symbol_hash(int len, char *symb)
@@ -58,7 +63,7 @@ int symbol_hash(int len, char *symb)
 }
 
 // Return symbol id or -1 if not in table
-int symbol_get(char *symb)
+int symbol_find(char *symb)
 {
     int len = strlen(symb);
     int id  = symbol_hash(len, symb);
@@ -75,7 +80,14 @@ int symbol_get(char *symb)
     return -1;
 }
 
-int symbol_intern(char *symb)
+// Return symbol name given its id
+char* symbol_get(int id)
+{
+    symbol_entry *ps = &hash_array[id];
+    return ps->name;
+}
+
+int symbol_intern(char* symb)
 {
     int len = strlen(symb);
     int id  = symbol_hash(len, symb);
@@ -114,6 +126,7 @@ int symbol_intern(char *symb)
     return id;
 }
 
+#ifdef  LISPKIT_TEST
 void symbol_test()
 {
     // Assumes symbol_init() has been called
@@ -136,15 +149,16 @@ void symbol_test()
     printf("id_hwile  = %d\n", id_hwile);
     printf("id_wheli  = %d\n", id_wheli);
 
-    printf("symbo_get(for)   = %d\n", symbol_get("for"));
-    printf("symbo_get(if)    = %d\n", symbol_get("if"));
-    printf("symbo_get(int)   = %d\n", symbol_get("int"));
-    printf("symbo_get(void)  = %d\n", symbol_get("void"));
-    printf("symbo_get(while) = %d\n", symbol_get("while"));
-    printf("symbo_get(hwile) = %d\n", symbol_get("hwile"));
-    printf("symbo_get(wheli) = %d\n", symbol_get("wheli"));
+    printf("symbo_find(for)   = %d\n", symbol_find("for"));
+    printf("symbo_find(if)    = %d\n", symbol_find("if"));
+    printf("symbo_find(int)   = %d\n", symbol_find("int"));
+    printf("symbo_find(void)  = %d\n", symbol_find("void"));
+    printf("symbo_find(while) = %d\n", symbol_find("while"));
+    printf("symbo_find(hwile) = %d\n", symbol_find("hwile"));
+    printf("symbo_find(wheli) = %d\n", symbol_find("wheli"));
 
-    printf("symbo_get(char)  = %d\n", symbol_get("char"));
-    printf("symbo_get(short) = %d\n", symbol_get("short"));
-    printf("symbo_get(struct)= %d\n", symbol_get("struct"));
+    printf("symbo_find(char)  = %d\n", symbol_find("char"));
+    printf("symbo_find(short) = %d\n", symbol_find("short"));
+    printf("symbo_find(struct)= %d\n", symbol_find("struct"));
 }
+#endif

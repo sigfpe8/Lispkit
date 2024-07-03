@@ -1,9 +1,19 @@
 #include "lispkit.h"
 
-int main() {
+int main()
+{
     printf("Hello, Lispkit!\n");
+
     symbol_init();
     cell_init();
-    symbol_test();
+    sexpr_init();
+
+    while (!feof(stdin)) {
+        printf("> ");
+        sexpr_t e = getexp();
+        putexp(e);
+        printf("\n");
+    }
+
     return 0;
 }

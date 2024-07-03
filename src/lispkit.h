@@ -22,14 +22,14 @@ typedef union {
     PAIR        upair;
 } cell_t;
 
-#define VINT(s)         ((s)->unint)
-#define CAR(s)          ((s)->upair.car)
-#define CDR(s)          ((s)->upair.cdr)
+#define VINT(c)         ((c)->unint)
+#define CAR(c)          ((c)->upair.car)
+#define CDR(c)          ((c)->upair.cdr)
 
 #define TAGMASK         7
 #define TAGSHIFT        3
 
-enum tags { nil, integer, symbol, pair };
+enum tags { integer, symbol, pair };
 
 // Form sexpr given a pointer and a tag
 #define TAGPTR(p,t)     (((p) << TAGSHIFT) | t)
@@ -38,13 +38,28 @@ enum tags { nil, integer, symbol, pair };
 // Get pointer for a given sexpr
 #define POINTER(s)      ((s) >> TAGSHIFT)
 
+#define CELL(s)         (&cell_array[POINTER(s)])
 
 // Externs
+
+// cell.c
+extern cell_t* cell_array;
 extern sexpr_t cell_alloc_int(int64_t vint);
 extern sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr);
-extern void cell_init();
+extern void    cell_init();
 
-extern void symbol_init();
-extern void symbol_test();
+// sexpr.c
+extern sexpr_t nil;
+extern sexpr_t getexp(void);
+extern sexpr_t getexplist(void);
+extern void    putexp(sexpr_t e);
+extern void    sexpr_init(void);
+
+// symbol.c
+extern int   sym_nil;
+extern char* symbol_get(int id);
+extern void  symbol_init();
+extern int   symbol_intern(char* symb);
+extern void  symbol_test();
 
 #endif  // _LISPKIT_H_
