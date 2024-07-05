@@ -40,7 +40,7 @@ static int cell_alloc()
 
 // Allocate a new cell
 // Initialize the car/cdr with the given arguments
-sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr)
+sexpr_t cons(sexpr_t car, sexpr_t cdr)
 {
     int ind = cell_alloc();
     cell_t *pc = &cell_array[ind];
@@ -52,7 +52,7 @@ sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr)
 
 // Allocate a new cell
 // The car/cdr will be set by the caller
-sexpr_t cons(void)
+sexpr_t make_cons(void)
 {
     int ind = cell_alloc();
 

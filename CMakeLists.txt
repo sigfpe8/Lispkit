@@ -10,6 +10,7 @@ endif()
 add_executable(lispkit
 	src/cell.c
 	src/main.c
+	src/secd.c
 	src/sexpr.c
 	src/symbol.c
 )

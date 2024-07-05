@@ -19,10 +19,17 @@ static void newline(void);
 static void storechar(void);
 
 sexpr_t nil;
+sexpr_t t;
+sexpr_t f;
 
 void sexpr_init(void)
 {
-    nil = TAGPTR(sym_nil, symbol);
+    // Predefined symbols
+    nil = TAGPTR(symbol_intern("NIL"), symbol);
+    f   = TAGPTR(symbol_intern("F"),   symbol);
+    t   = TAGPTR(symbol_intern("T"),   symbol);
+
+    // Force gettoken() to read new line
     nextToken = eol;
     nextChar = 12;
 }
@@ -87,7 +94,7 @@ sexpr_t getexplist(void)
     } else
         cdr = getexplist();
 
-    return cell_alloc_pair(car, cdr);
+    return cons(car, cdr);
 }
 
 // Reads a token and updates nextToken with it
@@ -146,13 +153,11 @@ static void gettoken(void)
     case '(': nextToken = lparen; break;
     case ')': nextToken = rparen; break;
     case '.': nextToken = dot;    break;
-    default:
-        nextToken = other;
-        TokString[0] = nextChar;
-        TokString[1] = 0;
-        break;
+    default:  nextToken = other;  break;
     }
 
+    TokString[0] = nextChar;
+    TokString[1] = 0;
     nextChar = getchar();
 }
 
@@ -181,17 +186,17 @@ void putexp(sexpr_t e)
 {
     switch (TAG(e)) {
     case integer:
-        printf("%lld", ivalue(e));
+        printf("%d", ivalue(e));
         break;
     case symbol:
         printf("%s", symbol_get(POINTER(e)));
         break;
     case pair:
         printf("(");
-        while (TAG(e) == pair) {
+        while (iscons(e)) {
             putexp(car(e));
             e = cdr(e);
-            if (TAG(e) == pair) printf(" ");
+            if (iscons(e)) printf(" ");
         }
         if (e != nil) {
             printf(".");

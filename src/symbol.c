@@ -28,8 +28,6 @@ static symbol_entry *hash_array;
 static symbol_entry *hash_chain;
 static int next_col_entry; // Next entry in the collision area
 
-int sym_nil;
-
 void symbol_init()
 {
     hash_array = malloc((SYMHASHSIZE+COLAREASIZE) * sizeof(symbol_entry));
@@ -43,9 +41,6 @@ void symbol_init()
 
     // Collision area is just after the hash table
     next_col_entry = SYMHASHSIZE;
-
-    // Predefined symbols
-    sym_nil = symbol_intern("nil");
 }
 
 int symbol_hash(int len, char *symb)
