@@ -1,6 +1,10 @@
 #ifndef _LISPKIT_H_
 #define _LISPKIT_H_
 
+// A C implementation of the Lispkit system described in the book
+//    Functional Programming Application and Implementation
+//    Peter Henderson
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,19 +16,16 @@
 typedef int32_t        sexpr_t;
 
 // A cell holds two sexpr's, a car and a cdr
-typedef struct pair {
+typedef struct {
     sexpr_t car;
     sexpr_t cdr;
-} PAIR;
-
-typedef union {
-    int64_t     unint;
-    PAIR        upair;
 } cell_t;
 
-#define VINT(s)         ((int64_t)POINTER((int64_t)s))
-#define CAR(c)          ((c)->upair.car)
-#define CDR(c)          ((c)->upair.cdr)
+// The following macros would be in uppercase in typical C code
+// but are in lowercase here to follow the book more closely.
+#define ivalue(s)       ((int64_t)POINTER((int64_t)s))
+#define car(s)          (cell_array[POINTER(s)].car)
+#define cdr(s)          (cell_array[POINTER(s)].cdr)
 
 #define TAGMASK         3
 #define TAGSHIFT        2
@@ -44,14 +45,13 @@ enum tags { integer, symbol, pair };
 // Get pointer for a given sexpr
 #define POINTER(s)      ((s) >> TAGSHIFT)
 
-#define CELL(s)         (&cell_array[POINTER(s)])
-
 // Externs
 
 // cell.c
 extern cell_t* cell_array;
 extern sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr);
 extern void    cell_init();
+extern sexpr_t cons(void);
 
 // sexpr.c
 extern sexpr_t nil;

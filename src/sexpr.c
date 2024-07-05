@@ -179,11 +179,9 @@ static void storechar(void)
 // Output an S-expression
 void putexp(sexpr_t e)
 {
-    cell_t* pc;
-
     switch (TAG(e)) {
     case integer:
-        printf("%lld", VINT(e));
+        printf("%lld", ivalue(e));
         break;
     case symbol:
         printf("%s", symbol_get(POINTER(e)));
@@ -191,9 +189,8 @@ void putexp(sexpr_t e)
     case pair:
         printf("(");
         while (TAG(e) == pair) {
-            pc = CELL(e);
-            putexp(CAR(pc));
-            e = CDR(pc);
+            putexp(car(e));
+            e = cdr(e);
             if (TAG(e) == pair) printf(" ");
         }
         if (e != nil) {
