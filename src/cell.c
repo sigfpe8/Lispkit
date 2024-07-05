@@ -46,12 +46,3 @@ sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr)
 
     return TAGPTR(ind,pair);
 }
-
-sexpr_t cell_alloc_int(int64_t vint)
-{
-    int ind = cell_alloc();
-    cell_t *pc = &cell_array[ind];
-    VINT(pc) = vint;
-
-    return TAGPTR(ind,integer);
-}

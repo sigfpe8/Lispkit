@@ -7,9 +7,9 @@
 #include <string.h>
 
 // An S-expression is represented as a "tagged pointer", where the
-// lower 3 bits encode a tag and the upper 29 bits encode an index
-// to the cell array or to the symbol array.
-typedef uint32_t        sexpr_t;
+// lower 2 bits encode a tag and the upper 30 bits encode an index
+// to the cell array, an index to the symbol array or an integer.
+typedef int32_t        sexpr_t;
 
 // A cell holds two sexpr's, a car and a cdr
 typedef struct pair {
@@ -22,12 +22,18 @@ typedef union {
     PAIR        upair;
 } cell_t;
 
-#define VINT(c)         ((c)->unint)
+#define VINT(s)         ((int64_t)POINTER((int64_t)s))
 #define CAR(c)          ((c)->upair.car)
 #define CDR(c)          ((c)->upair.cdr)
 
-#define TAGMASK         7
-#define TAGSHIFT        3
+#define TAGMASK         3
+#define TAGSHIFT        2
+#define PTRBITS         30
+
+// Minimum and maximum Lispkit integers
+// Representable in the upper bits of sexpr_t
+#define MAXLKINT        ((1 << (PTRBITS-1))-1)
+#define MINLKINT        (-(1 << (PTRBITS-1)))
 
 enum tags { integer, symbol, pair };
 
@@ -44,7 +50,6 @@ enum tags { integer, symbol, pair };
 
 // cell.c
 extern cell_t* cell_array;
-extern sexpr_t cell_alloc_int(int64_t vint);
 extern sexpr_t cell_alloc_pair(sexpr_t car, sexpr_t cdr);
 extern void    cell_init();
 

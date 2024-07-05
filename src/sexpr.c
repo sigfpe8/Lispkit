@@ -44,9 +44,20 @@ sexpr_t getexp(void)
         }
     } else if (nextToken == numeric) {
         int64_t num = strtoll(TokString,0,10);
-        e = cell_alloc_int(num);
+        if (num < MINLKINT) {
+            fprintf(stderr, "getexp(): integers must be >= %d\n", MINLKINT);
+            num = MINLKINT;
+        } else if (num > MAXLKINT) {
+            fprintf(stderr, "getexp(): integers must be <= %d\n", MAXLKINT);
+            num = MAXLKINT;
+        }
+        e = TAGPTR(num, integer);
     } else if (nextToken == alphanum) {
         int id = symbol_intern(TokString);
+        if (id > MAXLKINT) {
+            fprintf(stderr, "getexp(): symbol index is too large: %d\n", id);
+            exit(1);
+        }
         e = TAGPTR(id, symbol);
     } else if (nextToken == eof) {
         e = nil;
@@ -172,8 +183,7 @@ void putexp(sexpr_t e)
 
     switch (TAG(e)) {
     case integer:
-        pc = CELL(e);
-        printf("%lld", VINT(pc));
+        printf("%lld", VINT(e));
         break;
     case symbol:
         printf("%s", symbol_get(POINTER(e)));
