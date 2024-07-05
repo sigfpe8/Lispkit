@@ -32,19 +32,19 @@ enum opcode {
     STOP        // 21 = stop
 };
 
-// Machine state
-static sexpr_t s;      // Stack
-static sexpr_t e;      // Environment
-static sexpr_t c;      // Control
-static sexpr_t d;      // Dump
-
-// Temporary register
-static sexpr_t w;
-
-static int RUN;
-
 sexpr_t exec(sexpr_t fn, sexpr_t args)
 {
+    int i, n;
+    int RUN;
+
+    // Machine state
+    sexpr_t s;      // Stack
+    sexpr_t e;      // Environment
+    sexpr_t c;      // Control
+    sexpr_t d;      // Dump
+    // Temp registers
+    sexpr_t w, z;
+
     RUN = 1;
     s = cons(args, nil);
     e = nil;
@@ -56,8 +56,25 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
         case NOP:
             break;
         case LD:
+            // s e (LD z.c) d -> (locate(i,e).s) e c d
+            // where z = (b.n) b,n integers
+            w = e;
+            z = car(cdr(c));
+            n = ivalue(car(z));
+            for (int i = 1; i <= n; ++i)
+                w = cdr(w);
+            w = car(w);
+            n = ivalue(cdr(z));
+            for (int i = 1; i <= n; ++i)
+                w = cdr(w);
+            w = car(w);
+            s = cons(w,s);
+            c = cdr(cdr(c));
             break;
         case LDC:
+            // s e (LDC x.c) d -> (x.s) e c d
+            s = cons(car(cdr(c)), s);
+            c = cdr(cdr(c));
             break;
         case LDF:
             break;
@@ -79,24 +96,53 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
             c = cdr(c);
             break;
         case CDR:
+            // ((a.b).s) e (CAR.c) d -> (b.s) e c d
+            s = cons(cdr(car(s)), cdr(s));
+            c = cdr(c);
             break;
         case ATOM:
+            s = cons(iscons(car(s)) ? f : t, cdr(s));
+            c = cdr(c);
             break;
         case CONS:
+            // (a b.s) e (CONS.c) d -> ((a.b).s) e c d
+            s = cons(cons(car(s), car(cdr(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case EQ:
+            // (a b.s) e (EQ.c) d -> (b = a.s) e c d
+            s = cons(car(cdr(s)) == car(s) ? t : f, cdr(cdr(s)));
+            c = cdr(c);
             break;
         case ADD:
+            // (a b.s) e (ADD.c) d -> (b + a.s) e c d
+            s = cons(number(ivalue(car(cdr(s))) + ivalue(car(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case SUB:
+            // (a b.s) e (SUB.c) d -> (b - a.s) e c d
+            s = cons(number(ivalue(car(cdr(s))) - ivalue(car(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case MUL:
+            // (a b.s) e (MUL.c) d -> (b * a.s) e c d
+            s = cons(number(ivalue(car(cdr(s))) * ivalue(car(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case DIV:
+            // (a b.s) e (DIV.c) d -> (b - a.s) e c d
+            s = cons(number(ivalue(car(cdr(s))) / ivalue(car(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case REM:
+            // (a b.s) e (REM.c) d -> (b % a.s) e c d
+            s = cons(number(ivalue(car(cdr(s))) % ivalue(car(s))), cdr(cdr(s)));
+            c = cdr(c);
             break;
         case LEQ:
+            // (a b.s) e (LEQ.c) d -> (b <= a.s) e c d
+            s = cons(ivalue(car(cdr(s))) <= ivalue(car(s)) ? t : f, cdr(cdr(s)));
+            c = cdr(c);
             break;
         case STOP:
             RUN = 0;
@@ -107,6 +153,6 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
             break;
         }
     }
-    return 0;
+    return car(s);  // Top of the stack
 }
 
