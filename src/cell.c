@@ -5,7 +5,7 @@
 cell_t *cell_array;
 int free_cell;
 
-void cell_init()
+void cell_init(void)
 {
     cell_array = malloc(NUMCELLS * sizeof(cell_t));
     if (!cell_array) {
@@ -25,7 +25,7 @@ void cell_init()
     free_cell = 1;
 }
 
-static int cell_alloc()
+int cell_alloc(void)
 {
     int ind;
 
@@ -36,25 +36,4 @@ static int cell_alloc()
 
     free_cell = cell_array[ind].cdr;
     return ind;
-}
-
-// Allocate a new cell
-// Initialize the car/cdr with the given arguments
-sexpr_t cons(sexpr_t car, sexpr_t cdr)
-{
-    int ind = cell_alloc();
-    cell_t *pc = &cell_array[ind];
-    pc->car = car;
-    pc->cdr = cdr;
-
-    return TAGPTR(ind,pair);
-}
-
-// Allocate a new cell
-// The car/cdr will be set by the caller
-sexpr_t make_cons(void)
-{
-    int ind = cell_alloc();
-
-    return TAGPTR(ind,pair);
 }

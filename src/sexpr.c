@@ -22,12 +22,49 @@ sexpr_t nil;
 sexpr_t t;
 sexpr_t f;
 
+// Constructors
+sexpr_t symbol(char* sym)
+{
+    int32_t ind;
+
+    ind = symbol_intern(sym);
+    if (ind > MAXLKINT) {
+        fprintf(stderr, "symbol(): symbol index is too large: %d\n", ind);
+        exit(1);
+    }
+
+    return TAGPTR(ind, symbolic);
+}
+
+sexpr_t number(int32_t num)
+{
+    if (num < MINLKINT) {
+        fprintf(stderr, "number(): integers must be >= %d\n", MINLKINT);
+        num = MINLKINT;
+    } else if (num > MAXLKINT) {
+        fprintf(stderr, "number(): integers must be <= %d\n", MAXLKINT);
+        num = MAXLKINT;
+    }
+
+    return TAGPTR(num, integer);
+}
+
+sexpr_t cons(sexpr_t car, sexpr_t cdr)
+{
+    int ind = cell_alloc();
+    cell_t *pc = &cell_array[ind];
+    pc->car = car;
+    pc->cdr = cdr;
+
+    return TAGPTR(ind,pair);
+}
+
 void sexpr_init(void)
 {
     // Predefined symbols
-    nil = TAGPTR(symbol_intern("NIL"), symbol);
-    f   = TAGPTR(symbol_intern("F"),   symbol);
-    t   = TAGPTR(symbol_intern("T"),   symbol);
+    nil = symbol("NIL");
+      f = symbol("F");
+      t = symbol("T");
 
     // Force gettoken() to read new line
     nextToken = eol;
@@ -50,22 +87,9 @@ sexpr_t getexp(void)
             e = nil;
         }
     } else if (nextToken == numeric) {
-        int64_t num = strtoll(TokString,0,10);
-        if (num < MINLKINT) {
-            fprintf(stderr, "getexp(): integers must be >= %d\n", MINLKINT);
-            num = MINLKINT;
-        } else if (num > MAXLKINT) {
-            fprintf(stderr, "getexp(): integers must be <= %d\n", MAXLKINT);
-            num = MAXLKINT;
-        }
-        e = TAGPTR(num, integer);
+        e = number(strtoll(TokString,0,10));
     } else if (nextToken == alphanum) {
-        int id = symbol_intern(TokString);
-        if (id > MAXLKINT) {
-            fprintf(stderr, "getexp(): symbol index is too large: %d\n", id);
-            exit(1);
-        }
-        e = TAGPTR(id, symbol);
+        e = symbol(TokString);
     } else if (nextToken == eof) {
         e = nil;
     } else {
@@ -73,7 +97,7 @@ sexpr_t getexp(void)
         e = nil;
     }
 
-    gettoken();
+    gettoken(); // Look ahead next token
     return e;
 }
 
@@ -188,7 +212,7 @@ void putexp(sexpr_t e)
     case integer:
         printf("%d", ivalue(e));
         break;
-    case symbol:
+    case symbolic:
         printf("%s", symbol_get(POINTER(e)));
         break;
     case pair:

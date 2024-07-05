@@ -21,16 +21,6 @@ typedef struct {
     sexpr_t cdr;
 } cell_t;
 
-// The following macros would be in uppercase in typical C code
-// but are in lowercase here to follow the book more closely.
-
-// car/cdr can be used as lvalues
-#define car(s)          (cell_array[POINTER(s)].car)
-#define cdr(s)          (cell_array[POINTER(s)].cdr)
-// but ivalue/svalue cannot
-#define ivalue(s)       ((int32_t)POINTER((int32_t)s))
-#define svalue(s)       (symbol_get(POINTER(s)))
-
 #define TAGMASK         3
 #define TAGSHIFT        2
 #define PTRBITS         30
@@ -40,7 +30,7 @@ typedef struct {
 #define MAXLKINT        ((1 << (PTRBITS-1))-1)
 #define MINLKINT        (-(1 << (PTRBITS-1)))
 
-enum tags { integer, symbol, pair };
+enum tags { integer, symbolic, pair };
 
 // Form sexpr given a pointer and a tag
 #define TAGPTR(p,t)     (((p) << TAGSHIFT) | t)
@@ -49,18 +39,33 @@ enum tags { integer, symbol, pair };
 // Get pointer for a given sexpr
 #define POINTER(s)      ((s) >> TAGSHIFT)
 
+// The following macros would be in uppercase in typical C code
+// but are in lowercase here to follow the book more closely.
+
+// Constructors
+extern sexpr_t cons(sexpr_t car, sexpr_t cdr);
+extern sexpr_t number(int32_t num);
+extern sexpr_t symbol(char* sym);
+
 // Type predicates
-#define issymbol(s)     (TAG(s) == symbol)
+#define issymbol(s)     (TAG(s) == symbolic)
 #define isnumber(s)     (TAG(s) == integer)
 #define iscons(s)       (TAG(s) == pair)
+
+// Selectors
+#define ivalue(s)       ((int32_t)POINTER((int32_t)s))
+#define svalue(s)       (symbol_get(POINTER(s)))
+// car/cdr can be used as lvalues
+#define car(s)          (cell_array[POINTER(s)].car)
+#define cdr(s)          (cell_array[POINTER(s)].cdr)
+
 
 // Externs
 
 // cell.c
 extern cell_t* cell_array;
-extern void    cell_init();
-extern sexpr_t cons(sexpr_t car, sexpr_t cdr);
-extern sexpr_t make_cons(void);
+extern void    cell_init(void);
+extern int     cell_alloc(void);
 
 // sexpr.c
 extern sexpr_t nil;
