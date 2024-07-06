@@ -14,6 +14,7 @@ static int  nextChar;
 static char TokString[128];
 static int  ti;
 
+static void getnxtchar(void);
 static void gettoken(void);
 static void newline(void);
 static void storechar(void);
@@ -121,90 +122,6 @@ sexpr_t getexplist(void)
     return cons(car, cdr);
 }
 
-// Reads a token and updates nextToken with it
-static void gettoken(void)
-{
-    // Skip white space
-    while (nextChar <= 32) {
-        if (feof(stdin)) {
-            nextToken = eof;
-            return;
-        }
-        if (nextChar == '\n' || nextChar == '\r') {
-            nextChar = 0;
-            nextToken = eol;
-            return;
-        }
-        nextChar = getchar();
-    }
-
-    // Number?
-    if (isdigit(nextChar) || nextChar == '-') {
-        ti = 0;
-        if (nextChar == '-') {
-            storechar();
-            nextChar = getchar();
-            if (!isdigit(nextChar)) {
-                fprintf(stderr, "gettoken(): expected digit after '-'\n");
-                nextToken = eof;
-                return;
-            }
-        }
-        while (isdigit(nextChar)) {
-            storechar();
-            nextChar = getchar();
-        }
-        TokString[ti] = 0;
-        nextToken = numeric;
-        return;
-    }
-
-    // Symbol?
-    if (isalpha(nextChar)) {
-        ti = 0;
-        while (isalnum(nextChar)) {
-            storechar();
-            nextChar = getchar();
-        }
-        TokString[ti] = 0;
-        nextToken = alphanum;
-        return;
-
-    }
-
-    // Punctuation
-    switch (nextChar) {
-    case '(': nextToken = lparen; break;
-    case ')': nextToken = rparen; break;
-    case '.': nextToken = dot;    break;
-    default:  nextToken = other;  break;
-    }
-
-    TokString[0] = nextChar;
-    TokString[1] = 0;
-    nextChar = getchar();
-}
-
-// If we are at the end of a line,
-// force a new line to be read in
-static void newline(void)
-{
-    while (nextToken == eol)
-        gettoken();
-}
-
-// Concatenate next char to the token string
-// Check for space, leave room for end of string
-static void storechar(void)
-{
-    if (ti < (sizeof(TokString)-1))
-        TokString[ti++] = nextChar;
-    else {
-        TokString[ti] = 0;
-        fprintf(stderr, "nextToken is too long: %s\n", TokString);
-    }
-}
-
 // Output an S-expression
 void putexp(sexpr_t e)
 {
@@ -233,3 +150,144 @@ void putexp(sexpr_t e)
         break;
     }
 }
+
+// Reads a token and updates nextToken with it
+static void gettoken(void)
+{
+    // Skip white space
+    while (nextChar <= 32) {
+        if (feof(stdin)) {
+            nextToken = eof;
+            return;
+        }
+        if (nextChar == '\n' || nextChar == '\r') {
+            nextChar = 0;
+            nextToken = eol;
+            return;
+        }
+        getnxtchar();
+    }
+
+    // Number?
+    if (isdigit(nextChar) || nextChar == '-') {
+        ti = 0;
+        if (nextChar == '-') {
+            storechar();
+            getnxtchar();
+            if (!isdigit(nextChar)) {
+                fprintf(stderr, "gettoken(): expected digit after '-'\n");
+                nextToken = eof;
+                return;
+            }
+        }
+        while (isdigit(nextChar)) {
+            storechar();
+            getnxtchar();
+        }
+        TokString[ti] = 0;
+        nextToken = numeric;
+        return;
+    }
+
+    // Symbol?
+    if (isalpha(nextChar)) {
+        ti = 0;
+        while (isalnum(nextChar)) {
+            storechar();
+            getnxtchar();
+        }
+        TokString[ti] = 0;
+        nextToken = alphanum;
+        return;
+
+    }
+
+    // Punctuation
+    switch (nextChar) {
+    case '(': nextToken = lparen; break;
+    case ')': nextToken = rparen; break;
+    case '.': nextToken = dot;    break;
+    default:  nextToken = other;  break;
+    }
+
+    TokString[0] = nextChar;
+    TokString[1] = 0;
+    getnxtchar();
+}
+
+// Concatenate next char to the token string
+// Check for space, leave room for end of string
+static void storechar(void)
+{
+    if (ti < (sizeof(TokString)-1))
+        TokString[ti++] = nextChar;
+    else {
+        TokString[ti] = 0;
+        fprintf(stderr, "nextToken is too long: %s\n", TokString);
+    }
+}
+
+#ifndef TEST_SECD
+// If we are at the end of a line,
+// force a new line to be read in
+static void newline(void)
+{
+    while (nextToken == eol)
+        gettoken();
+}
+
+// Read next character
+static void getnxtchar(void)
+{
+    nextChar = getchar();
+}
+#endif
+
+#ifdef  TEST_SECD
+char* testTable[] = {
+//  Code                             Arguments           Result
+//  -----------------------------    ------------------  ---------
+    "(21)",                          "(B C)",            "(B C)",
+    "(2 A 21)",                      "X",                "A",
+    "(2 A 12 21)",                   "X",                "T",
+    "(2 (A) 12 21)",                 "X",                "F",
+    0
+};
+
+static char *pline;
+static int iline;
+
+static void getnxtchar(void)
+{
+     nextChar = *pline++;
+     if (!nextChar) nextChar = '\n';
+}
+
+static void newline(void)
+{
+    if (nextToken == eol) {
+        pline = testTable[iline++];
+        gettoken();
+    }
+}
+
+void test_exec(void)
+{
+    while (testTable[iline]) {
+        sexpr_t fn   = getexp();
+        printf("\nfn:   ");
+        putexp(fn);
+        sexpr_t args = getexp();
+        printf("\nargs: ");
+        putexp(args);
+        sexpr_t expc  = getexp();
+        printf("\nexp:  ");
+        putexp(expc);
+        sexpr_t res = exec(fn, args);
+        printf("\nres:  ");
+        putexp(res);
+        printf("\n");
+    }
+}
+
+#endif  // TEST_SECD

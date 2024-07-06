@@ -67,6 +67,10 @@ extern cell_t* cell_array;
 extern void    cell_init(void);
 extern int     cell_alloc(void);
 
+// secd.c
+//#define TEST_SECD
+extern sexpr_t exec(sexpr_t fn, sexpr_t args);
+
 // sexpr.c
 extern sexpr_t nil;
 extern sexpr_t f;
@@ -75,6 +79,7 @@ extern sexpr_t getexp(void);
 extern sexpr_t getexplist(void);
 extern void    putexp(sexpr_t e);
 extern void    sexpr_init(void);
+extern void    test_exec(void);
 
 // symbol.c
 extern char* symbol_get(int id);
