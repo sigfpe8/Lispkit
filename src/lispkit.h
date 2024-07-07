@@ -68,8 +68,9 @@ extern void    cell_init(void);
 extern int     cell_alloc(void);
 
 // secd.c
-//#define TEST_SECD
+#define SECD_TEST
 extern sexpr_t exec(sexpr_t fn, sexpr_t args);
+extern sexpr_t getobj(sexpr_t src);
 
 // sexpr.c
 extern sexpr_t nil;
@@ -79,9 +80,10 @@ extern sexpr_t getexp(void);
 extern sexpr_t getexplist(void);
 extern void    putexp(sexpr_t e);
 extern void    sexpr_init(void);
-extern void    test_exec(void);
+extern void    secd_test(void);
 
 // symbol.c
+//#define SYMBOL_TEST
 extern char* symbol_get(int id);
 extern void  symbol_init();
 extern int   symbol_intern(char* symb);

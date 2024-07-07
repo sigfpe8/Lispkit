@@ -121,7 +121,7 @@ int symbol_intern(char* symb)
     return id;
 }
 
-#ifdef  LISPKIT_TEST
+#ifdef  SYMBOL_TEST
 void symbol_test()
 {
     // Assumes symbol_init() has been called

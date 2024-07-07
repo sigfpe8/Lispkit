@@ -2,6 +2,9 @@
 
 #include "lispkit.h"
 
+static sexpr_t getobjlist(sexpr_t src);
+static int     getopcode(char* sym);
+
 enum opcode {
     // Control operations
     NOP,        //  0 = no operation
@@ -30,6 +33,31 @@ enum opcode {
     REM,        // 19 = rest of division of top-1 by top stack item
     LEQ,        // 20 = apply predicate (top-1) <= (top)
     STOP        // 21 = stop
+};
+
+char *opcode_names[] = {
+    "NOP",        //  0 = no operation
+    "LD",         //  1 = load
+    "LDC",        //  2 = load constant
+    "LDF",        //  3 = load function
+    "AP",         //  4 = apply function
+    "RTN",        //  5 = return
+    "DUM",        //  6 = create dummy environment
+    "RAP",        //  7 = recursive apply
+    "SEL",        //  8 = select subcontrol
+    "JOIN",       //  9 = rejoin main control
+    "CAR",        // 10 = take car of item on top of stack
+    "CDR",        // 11 = take cdr of item on top of stack
+    "ATOM",       // 12 = apply atom predicate to top stack item
+    "CONS",       // 13 = form cons of top two stack items
+    "EQ",         // 14 = apply eq predicate to top two stack items
+    "ADD",        // 15 = add top two stack items
+    "SUB",        // 16 = subtract top item from top-1 stack item
+    "MUL",        // 17 = multiply top two stack items
+    "DIV",        // 18 = divide top-1 item by top stack item
+    "REM",        // 19 = rest of division of top-1 by top stack item
+    "LEQ",        // 20 = apply predicate (top-1) <= (top)
+    "STOP"        // 21 = stop
 };
 
 sexpr_t exec(sexpr_t fn, sexpr_t args)
@@ -156,3 +184,53 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
     return car(s);  // Top of the stack
 }
 
+// Replace source code mnemonics in the src expression with
+// the corresponding obj opcode (like an assembler)
+sexpr_t getobj(sexpr_t src)
+{
+    sexpr_t obj = src;
+    int opc;
+
+    switch (TAG(src)) {
+    case integer:
+        break;
+    case symbolic:
+        // If this is a SECD mnemonic, return its numeric value
+        // Otherwise leave it unchanged
+        opc = getopcode(svalue(src));
+        if (opc)
+            obj = number(opc);
+        break;
+    case pair:
+        obj = getobjlist(src);
+        break;
+    default:
+        fprintf(stderr, "getobj(): invalid tag: %d\n", TAG(src));
+        break;
+    }
+
+    return obj;
+}
+
+static sexpr_t getobjlist(sexpr_t src)
+{
+    sexpr_t car = getobj(car(src));
+    sexpr_t cdr = cdr(src);
+
+    if (iscons(cdr)) cdr = getobjlist(cdr);
+    else cdr = getobj(cdr);
+
+    return cons(car, cdr);
+}
+
+// If the given symbol is a SECD mnemonic, return its numeric value
+// Otherwise return 0
+static int getopcode(char* sym)
+{
+    // TODO: use a hash table instead of a liner search
+    for (int opc = 1; opc <= sizeof(opcode_names)/sizeof(opcode_names[0]); ++opc)
+        if (!strcmp(opcode_names[opc], sym))
+            return opc;
+
+    return 0;
+}

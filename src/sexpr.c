@@ -227,7 +227,7 @@ static void storechar(void)
     }
 }
 
-#ifndef TEST_SECD
+#ifndef SECD_TEST
 // If we are at the end of a line,
 // force a new line to be read in
 static void newline(void)
@@ -243,14 +243,18 @@ static void getnxtchar(void)
 }
 #endif
 
-#ifdef  TEST_SECD
+#ifdef  SECD_TEST
 char* testTable[] = {
 //  Code                             Arguments           Result
 //  -----------------------------    ------------------  ---------
-    "(21)",                          "(B C)",            "(B C)",
-    "(2 A 21)",                      "X",                "A",
-    "(2 A 12 21)",                   "X",                "T",
-    "(2 (A) 12 21)",                 "X",                "F",
+    "(STOP)",                        "(B C)",            "(B C)",
+    "(LDC A STOP)",                  "X",                "A",
+    "(LDC A ATOM STOP)",             "X",                "T",
+    "(LDC (A) ATOM STOP)",           "X",                "F",
+    "(LDC (A) CAR STOP)",            "X",                "A",
+    "(LDC A LDC B CONS STOP)",       "X",                "(B.A)",
+    "(LDC A LDC B CONS CDR STOP)",   "X",                "A",
+    "(LDC (A B C) CDR STOP)",        "X",                "(B C)",
     0
 };
 
@@ -271,23 +275,26 @@ static void newline(void)
     }
 }
 
-void test_exec(void)
+void secd_test(void)
 {
     while (testTable[iline]) {
-        sexpr_t fn   = getexp();
-        printf("\nfn:   ");
-        putexp(fn);
+        sexpr_t src  = getexp();
+        printf("\nsrc:  ");
+        putexp(src);
+        sexpr_t obj = getobj(src);
+        printf("\nobj:  ");
+        putexp(obj);
         sexpr_t args = getexp();
         printf("\nargs: ");
         putexp(args);
         sexpr_t expc  = getexp();
         printf("\nexp:  ");
         putexp(expc);
-        sexpr_t res = exec(fn, args);
+        sexpr_t res = exec(obj, args);
         printf("\nres:  ");
         putexp(res);
         printf("\n");
     }
 }
 
-#endif  // TEST_SECD
+#endif  // SECD_TEST

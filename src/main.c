@@ -8,8 +8,8 @@ int main()
     cell_init();
     sexpr_init();
 
-#ifdef  TEST_SECD
-   test_exec();
+#ifdef  SECD_TEST
+   secd_test();
 #else
     while (!feof(stdin)) {
         printf("> ");
