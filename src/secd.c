@@ -111,12 +111,29 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
         case RTN:
             break;
         case DUM:
+            // s e (DUM.c) d -> s (Ω.e) c d
+            e = cons(nil, e);
+            c = cdr(c);
             break;
         case RAP:
+            // ((c'.e') v.s) (Ω.e) (RAP.c) d -> NIL rplaca(e',v) c' (s e c.d)
+            d = cons(cdr(cdr(s)),cons(cdr(e),cons(cdr(c),d)));
+            e = cdr(car(s));
+            car(e) = car(cdr(s));
+            c = car(car(s));
+            s = nil;
             break;
         case SEL:
+            // (x.s) e (SEL ct cf.c) d -> s e cx (c.d)
+            d = cons(cdr(cdr(cdr(c))),d);
+            if (car(s) == t) c = car(cdr(c));
+            else c = car(cdr(cdr(c)));
+            s = cdr(s);
             break;
         case JOIN:
+            // s e (JOIN) (c.d) -> s e c d
+            c = car(d);
+            d = cdr(d);
             break;
         case CAR:
             // ((a.b).s) e (CAR.c) d -> (a.s) e c d

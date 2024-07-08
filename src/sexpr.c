@@ -255,6 +255,11 @@ char* testTable[] = {
     "(LDC A LDC B CONS STOP)",       "X",                "(B.A)",
     "(LDC A LDC B CONS CDR STOP)",   "X",                "A",
     "(LDC (A B C) CDR STOP)",        "X",                "(B C)",
+    "(LDC A LDC B EQ STOP)",         "X",                "F",
+    "(LDC A LDC A EQ STOP)",         "X",                "T",
+    "(LDC 3 LDC 5 EQ STOP)",         "X",                "F",
+    "(LDC 3 LDC 3 EQ STOP)",         "X",                "T",
+    "(LDC (A) LDC (A) EQ STOP)",     "X",                "F",
     0
 };
 
