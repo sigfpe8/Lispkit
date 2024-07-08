@@ -76,6 +76,7 @@ extern sexpr_t getobj(sexpr_t src);
 extern sexpr_t nil;
 extern sexpr_t f;
 extern sexpr_t t;
+extern int     equalexp(sexpr_t e1, sexpr_t e2);
 extern sexpr_t getexp(void);
 extern sexpr_t getexplist(void);
 extern void    putexp(sexpr_t e);

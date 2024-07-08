@@ -18,6 +18,7 @@ static void getnxtchar(void);
 static void gettoken(void);
 static void newline(void);
 static void storechar(void);
+static int equalexplist(sexpr_t e1, sexpr_t e2);
 
 sexpr_t nil;
 sexpr_t t;
@@ -151,6 +152,36 @@ void putexp(sexpr_t e)
     }
 }
 
+// Compares two S-expressions for equal content
+int equalexp(sexpr_t e1, sexpr_t e2)
+{
+    // If same expression, they're equal
+    if (e1 == e2) return 1;
+
+    int tag;
+
+    // Different types cannot be equal
+    if ((tag = TAG(e1)) != TAG(e2)) return 0;
+
+    // Different lists can have the same content
+    if (tag != pair) return 0;
+
+    return equalexplist(e1, e2);
+}
+
+static int equalexplist(sexpr_t e1, sexpr_t e2)
+{
+    if (!equalexp(car(e1),car(e2))) return 0;
+
+    sexpr_t cdr1 = cdr(e1);
+    sexpr_t cdr2 = cdr(e2);
+    if (cdr1 == nil) return cdr2 == nil;
+    if (cdr2 == nil) return 0;
+
+    if (!iscons(cdr1) || !iscons(cdr2)) return equalexp(cdr1,cdr2);
+    return equalexplist(cdr1,cdr2);
+}
+
 // Reads a token and updates nextToken with it
 static void gettoken(void)
 {
@@ -260,6 +291,16 @@ char* testTable[] = {
     "(LDC 3 LDC 5 EQ STOP)",         "X",                "F",
     "(LDC 3 LDC 3 EQ STOP)",         "X",                "T",
     "(LDC (A) LDC (A) EQ STOP)",     "X",                "F",
+    "(LDC 271 LDC 127 ADD STOP)",    "X",                "398",
+    "(LDC 271 LDC -71 ADD STOP)",    "X",                "200",
+    "(LDC 271 LDC 127 SUB STOP)",    "X",                "144",
+    "(LDC 271 LDC 127 MUL STOP)",    "X",                "34417",
+    "(LDC 271 LDC -127 MUL STOP)",   "X",                "-34417",
+    "(LDC 271 LDC 127 DIV STOP)",    "X",                "2",
+    "(LDC 271 LDC 127 REM STOP)",    "X",                "17",
+    "(LDC 271 LDC 127 LEQ STOP)",    "X",                "F",
+    "(LDC 127 LDC 127 LEQ STOP)",    "X",                "T",
+    "(LDC 127 LDC 271 LEQ STOP)",    "X",                "T",
     0
 };
 
@@ -282,23 +323,32 @@ static void newline(void)
 
 void secd_test(void)
 {
+    int errs = 0;
+
     while (testTable[iline]) {
         sexpr_t src  = getexp();
-        printf("\nsrc:  ");
-        putexp(src);
         sexpr_t obj = getobj(src);
-        printf("\nobj:  ");
-        putexp(obj);
         sexpr_t args = getexp();
-        printf("\nargs: ");
-        putexp(args);
-        sexpr_t expc  = getexp();
-        printf("\nexp:  ");
-        putexp(expc);
+        sexpr_t exp  = getexp();
         sexpr_t res = exec(obj, args);
-        printf("\nres:  ");
-        putexp(res);
-        printf("\n");
+
+        printf("Test: ");
+        putexp(src);
+        if (equalexp(exp,res)) printf(" Success!\n");
+        else {
+            printf(" ## ERROR ##");
+            printf("\n  Expected: "); putexp(exp);
+            printf("\n  Got:      "); putexp(res);
+            printf("\n");
+            ++errs;
+        }
+    }
+
+    if (!errs) printf("\nAll tests passed!\n");
+    else {
+        printf("\nThere %s %d error%s!\n",
+            errs == 1 ? "was" : "were", errs,
+            errs == 1 ? "" : "s");
     }
 }
 
