@@ -18,7 +18,7 @@ static void getnxtchar(void);
 static void gettoken(void);
 static void newline(void);
 static void storechar(void);
-static int equalexplist(sexpr_t e1, sexpr_t e2);
+static bool equalexplist(sexpr_t e1, sexpr_t e2);
 
 sexpr_t nil;
 sexpr_t t;
@@ -152,31 +152,32 @@ void putexp(sexpr_t e)
     }
 }
 
-// Compares two S-expressions for equal content
-int equalexp(sexpr_t e1, sexpr_t e2)
+// Compares two S-expressions
+// Return true if they have the same content
+bool equalexp(sexpr_t e1, sexpr_t e2)
 {
     // If same expression, they're equal
-    if (e1 == e2) return 1;
+    if (e1 == e2) return true;
 
     int tag;
 
     // Different types cannot be equal
-    if ((tag = TAG(e1)) != TAG(e2)) return 0;
+    if ((tag = TAG(e1)) != TAG(e2)) return false;
 
     // Different lists can have the same content
-    if (tag != pair) return 0;
+    if (tag != pair) return false;
 
     return equalexplist(e1, e2);
 }
 
-static int equalexplist(sexpr_t e1, sexpr_t e2)
+static bool equalexplist(sexpr_t e1, sexpr_t e2)
 {
-    if (!equalexp(car(e1),car(e2))) return 0;
+    if (!equalexp(car(e1),car(e2))) return false;
 
     sexpr_t cdr1 = cdr(e1);
     sexpr_t cdr2 = cdr(e2);
     if (cdr1 == nil) return cdr2 == nil;
-    if (cdr2 == nil) return 0;
+    if (cdr2 == nil) return false;
 
     if (!iscons(cdr1) || !iscons(cdr2)) return equalexp(cdr1,cdr2);
     return equalexplist(cdr1,cdr2);
