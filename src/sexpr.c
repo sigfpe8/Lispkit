@@ -279,7 +279,7 @@ static void getnxtchar(void)
 char* testTable[] = {
 //  Code                             Arguments           Result
 //  -----------------------------    ------------------  ---------
-    "(STOP)",                        "(B C)",            "(B C)",
+    "(STOP)",                        "((B C))",          "((B C))",
     "(LDC A STOP)",                  "X",                "A",
     "(LDC A ATOM STOP)",             "X",                "T",
     "(LDC (A) ATOM STOP)",           "X",                "F",
@@ -302,6 +302,18 @@ char* testTable[] = {
     "(LDC 271 LDC 127 LEQ STOP)",    "X",                "F",
     "(LDC 127 LDC 127 LEQ STOP)",    "X",                "T",
     "(LDC 127 LDC 271 LEQ STOP)",    "X",                "T",
+    "(LDC T SEL (LDC A STOP) (LDC B STOP))", "X",        "A",
+    "(LDC F SEL (LDC A STOP) (LDC B STOP))", "X",        "B",
+    "(LDC T SEL (LDC A JOIN) (LDC B JOIN) STOP)", "X",   "A",
+    "(LDC F SEL (LDC A JOIN) (LDC B JOIN) STOP)", "X",   "B",
+    "(LDF (LDC A) STOP)",            "((B C))",          "((2 A))",
+    "(LDF (LDC A STOP) AP)",         "((B C))",          "A",
+    "(LDF (LDC A RTN) AP STOP)",     "((B C))",          "A",
+    "(LDF (LD (0 . 0) RTN) AP STOP)","((B C))",          "(B C)",
+    "(LDF (LD (0 . 1) RTN) AP STOP)","((B C) (D E))",    "(D E)",
+    "(LDF (DUM LD (1 . 0) RTN) AP STOP)", "((B C))",     "(B C)",
+    "(LDF (DUM LD (1 . 1) RTN) AP STOP)", "((B C) (D E))", "(D E)",
+    "(DUM LDF (LD (0 . 0) STOP) RAP)","((B C))",          "(B C)",
     0
 };
 
@@ -333,8 +345,7 @@ void secd_test(void)
         sexpr_t exp  = getexp();
         sexpr_t res = exec(obj, args);
 
-        printf("Test: ");
-        putexp(src);
+        printf("Test: "); putexp(src);
         if (equalexp(exp,res)) printf(" Success!\n");
         else {
             printf(" ## ERROR ##");

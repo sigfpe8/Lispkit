@@ -4,6 +4,7 @@
 
 static sexpr_t getobjlist(sexpr_t src);
 static int     getopcode(char* sym);
+static void    secd_regs(char* msg);
 
 enum opcode {
     // Control operations
@@ -60,18 +61,18 @@ char *opcode_names[] = {
     "STOP"        // 21 = stop
 };
 
+// Machine state
+static sexpr_t s;      // Stack
+static sexpr_t e;      // Environment
+static sexpr_t c;      // Control
+static sexpr_t d;      // Dump
+// Temp registers
+static sexpr_t w, z;
+
 sexpr_t exec(sexpr_t fn, sexpr_t args)
 {
     int i, n;
     int RUN;
-
-    // Machine state
-    sexpr_t s;      // Stack
-    sexpr_t e;      // Environment
-    sexpr_t c;      // Control
-    sexpr_t d;      // Dump
-    // Temp registers
-    sexpr_t w, z;
 
     RUN = 1;
     s = cons(args, nil);
@@ -84,7 +85,7 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
         case NOP:
             break;
         case LD:
-            // s e (LD z.c) d -> (locate(i,e).s) e c d
+            // s e (LD z.c) d -> (locate(z,e).s) e c d
             // where z = (b.n) b,n integers
             w = e;
             z = car(cdr(c));
@@ -105,10 +106,23 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
             c = cdr(cdr(c));
             break;
         case LDF:
+            // s e (LDF c'.c) d -> ((c'.e).s) e c d
+            s = cons(cons(car(cdr(c)), e), s);
+            c = cdr(cdr(c));
             break;
         case AP:
+            // ((c'.e') v.s) e (AP.c) d -> NIL (v.e') c' (s e c.d)
+            d = cons(cdr(cdr(s)), cons(e, cons(cdr(c), d)));
+            e = cons(car(cdr(s)), cdr((car(s))));
+            c = car(car(s));
+            s = nil;
             break;
         case RTN:
+            // (a) e' (RTN) (s e c.d) -> (a.s) e c d
+            s = cons(car(s), car(d));
+            e = car(cdr(d));
+            c = car(cdr(cdr(d)));
+            d = cdr(cdr(cdr(d)));
             break;
         case DUM:
             // s e (DUM.c) d -> s (Ω.e) c d
@@ -251,3 +265,16 @@ static int getopcode(char* sym)
 
     return 0;
 }
+
+#ifdef  SECD_TEST
+// Display the state of the SECD machine for debugging purposes
+static void secd_regs(char* msg)
+{
+    printf("\n");
+    if (msg) printf("%s\n", msg);
+    printf("s = "); putexp(s); printf("\n");
+    printf("e = "); putexp(e); printf("\n");
+    printf("c = "); putexp(c); printf("\n");
+    printf("d = "); putexp(d); printf("\n");
+}
+#endif
