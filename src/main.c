@@ -1,7 +1,12 @@
 #include "lispkit.h"
 
+extern sexpr_t* initial_sp;
+
 int main()
 {
+    // Beginning of the cpu stack; used by the GC
+    GET_SP(initial_sp);
+
     printf("Hello, Lispkit!\n");
 
     symbol_init();

@@ -61,11 +61,12 @@ char *opcode_names[] = {
     "STOP"        // 21 = stop
 };
 
-// Machine state
-static sexpr_t s;      // Stack
-static sexpr_t e;      // Environment
-static sexpr_t c;      // Control
-static sexpr_t d;      // Dump
+// SECD Machine state
+sexpr_t s;      // Stack
+sexpr_t e;      // Environment
+sexpr_t c;      // Control
+sexpr_t d;      // Dump
+
 // Temp registers
 static sexpr_t w, z;
 

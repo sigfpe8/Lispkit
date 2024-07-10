@@ -60,6 +60,14 @@ extern sexpr_t symbol(char* sym);
 #define car(s)          (cell_array[POINTER(s)].car)
 #define cdr(s)          (cell_array[POINTER(s)].cdr)
 
+// SECD Machine state
+extern sexpr_t s;      // Stack
+extern sexpr_t e;      // Environment
+extern sexpr_t c;      // Control
+extern sexpr_t d;      // Dump
+
+// Get the current stack pointer (sp)
+#define GET_SP(dst)     __asm__ volatile("mov %0, sp\n\t": "=r"(dst));
 
 // Externs
 
