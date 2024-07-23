@@ -82,6 +82,7 @@ sexpr_t exec(sexpr_t fn, sexpr_t args)
     d = nil;
 
     while (RUN) {
+        // secd_regs(0);
         switch (ivalue(car(c))) {
         case NOP:
             break;
@@ -267,7 +268,7 @@ static int getopcode(char* sym)
     return 0;
 }
 
-#ifdef  SECD_TEST
+// #ifdef  SECD_TEST
 // Display the state of the SECD machine for debugging purposes
 static void secd_regs(char* msg)
 {
@@ -278,4 +279,4 @@ static void secd_regs(char* msg)
     printf("c = "); putexp(c); printf("\n");
     printf("d = "); putexp(d); printf("\n");
 }
-#endif
+// #endif

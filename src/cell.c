@@ -7,8 +7,8 @@
 
 // NUMCELLS must be a multiple of 8 because the GC bit_array[]
 // stores bits as 8 bits per bytes.
-//#define NUMCELLS        (1024*10)
-#define NUMCELLS        (40)
+#define NUMCELLS        (1024*10)
+// #define NUMCELLS        (40)
 #define NUMGCBYTES      (NUMCELLS/8)
 
 #define MARK(b)         (bit_array[b / 8] |= (1 << (b & 7)))

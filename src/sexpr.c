@@ -5,6 +5,9 @@
 
 // Parser and scanner
 
+// Expression input stream
+FILE *expin;
+
 typedef enum {
     alphanum, numeric, lparen, rparen, dot, other, eol, eof
 } token_t;
@@ -67,6 +70,9 @@ void sexpr_init(void)
     nil = symbol("NIL");
       f = symbol("F");
       t = symbol("T");
+
+    // Read from stdin by default
+    expin = stdin;
 
     // Force gettoken() to read new line
     nextToken = eol;
@@ -188,7 +194,7 @@ static void gettoken(void)
 {
     // Skip white space
     while (nextChar <= 32) {
-        if (feof(stdin)) {
+        if (feof(expin)) {
             nextToken = eof;
             return;
         }
@@ -271,7 +277,7 @@ static void newline(void)
 // Read next character
 static void getnxtchar(void)
 {
-    nextChar = getchar();
+    nextChar = getc(expin);
 }
 #endif
 
