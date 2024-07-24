@@ -89,18 +89,20 @@ extern sexpr_t getexp(void);
 extern sexpr_t getexplist(void);
 extern void    putexp(sexpr_t e);
 extern void    sexpr_init(void);
-extern void    secd_test(void);
 
 // symbol.c
+extern int   symbol_find(char *symb);
 extern char* symbol_get(int id);
 extern void  symbol_init();
 extern int   symbol_intern(char* symb);
-extern void  symbol_test();
 
 // Tests
 // Define only one at a time
 // #define SYMBOL_TEST
-// #define SECD_TEST
+#define SECD_TEST
 // #define COMPILER_TEST
+extern void compiler_test(sexpr_t comp);
+extern void secd_test(void);
+extern void symbol_test();
 
 #endif  // _LISPKIT_H_

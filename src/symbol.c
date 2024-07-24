@@ -43,6 +43,7 @@ void symbol_init()
     next_col_entry = SYMHASHSIZE;
 }
 
+// Calculate symbol hash
 int symbol_hash(int len, char *symb)
 {
     int hash = 0;
@@ -82,6 +83,7 @@ char* symbol_get(int id)
     return ps->name;
 }
 
+// Internalize symbol (map symbol to int id)
 int symbol_intern(char* symb)
 {
     int len = strlen(symb);
@@ -121,39 +123,3 @@ int symbol_intern(char* symb)
     return id;
 }
 
-#ifdef  SYMBOL_TEST
-void symbol_test()
-{
-    // Assumes symbol_init() has been called
-
-    int id_for   = symbol_intern("for");
-    int id_if    = symbol_intern("if");
-    int id_int   = symbol_intern("int");
-    int id_long  = symbol_intern("long");
-    int id_void  = symbol_intern("void");
-    int id_while = symbol_intern("while");
-    int id_hwile = symbol_intern("hwile");
-    int id_wheli = symbol_intern("wheli");
-
-    printf("id_for    = %d\n", id_for);
-    printf("id_if     = %d\n", id_if);
-    printf("id_int    = %d\n", id_int);
-    printf("id_long   = %d\n", id_long);
-    printf("id_void   = %d\n", id_void);
-    printf("id_while  = %d\n", id_while);
-    printf("id_hwile  = %d\n", id_hwile);
-    printf("id_wheli  = %d\n", id_wheli);
-
-    printf("symbo_find(for)   = %d\n", symbol_find("for"));
-    printf("symbo_find(if)    = %d\n", symbol_find("if"));
-    printf("symbo_find(int)   = %d\n", symbol_find("int"));
-    printf("symbo_find(void)  = %d\n", symbol_find("void"));
-    printf("symbo_find(while) = %d\n", symbol_find("while"));
-    printf("symbo_find(hwile) = %d\n", symbol_find("hwile"));
-    printf("symbo_find(wheli) = %d\n", symbol_find("wheli"));
-
-    printf("symbo_find(char)  = %d\n", symbol_find("char"));
-    printf("symbo_find(short) = %d\n", symbol_find("short"));
-    printf("symbo_find(struct)= %d\n", symbol_find("struct"));
-}
-#endif

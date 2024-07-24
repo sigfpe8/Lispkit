@@ -13,6 +13,7 @@ add_executable(lispkit
 	src/secd.c
 	src/sexpr.c
 	src/symbol.c
+	src/tests.c
 )
 
 if(UNIX)
