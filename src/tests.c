@@ -73,6 +73,7 @@ void secd_test(void)
         }
     }
 
+    fclose(expin);
     if (!errs) printf("\nAll tests passed!\n");
     else {
         printf("\nThere %s %d error%s!\n",

@@ -56,6 +56,7 @@ static sexpr_t read_compiler(void)
     }
 
     sexpr_t c = getexp();
+    fclose(expin);
     expin = savein;
     return c;
 }
