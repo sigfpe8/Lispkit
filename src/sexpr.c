@@ -216,6 +216,12 @@ static bool equalexplist(sexpr_t e1, sexpr_t e2)
     return equalexplist(cdr1,cdr2);
 }
 
+// Add item to a new list
+sexpr_t enlist(sexpr_t sexp)
+{
+    return cons(sexp, nil);
+}
+
 // Reads a token and updates nextToken with it
 static void gettoken(void)
 {

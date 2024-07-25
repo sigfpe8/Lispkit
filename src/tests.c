@@ -93,6 +93,7 @@ void compiler_test(sexpr_t comp)
         sexpr_t src = getexp();         // Lisp source to be compiled
         sexpr_t exp = getexp();         // Expected object code
         if (src == nil) break;          // EOF?
+        src = enlist(src);              // src is arg to comp so it must be a list
         sexpr_t obj = exec(comp, src);  // Result object code
 
         printf("Test: "); putexp(src);
@@ -111,6 +112,7 @@ void compiler_test(sexpr_t comp)
     sexpr_t src = getexp();         // Lisp source to be compiled
     sexpr_t arg = getexp();         // List or arguments
     sexpr_t exp = getexp();         // Expected result
+    src = enlist(src);              // src is arg to comp so it must be a list
     sexpr_t obj = exec(comp, src);  // Object code
     sexpr_t res = exec(obj, arg);   // Run the compiled code
 
