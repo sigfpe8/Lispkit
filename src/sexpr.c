@@ -5,12 +5,12 @@
 
 // Parser and scanner
 
-// Expression input stream
-FILE *expin;
-
 typedef enum {
     alphanum, numeric, lparen, rparen, dot, other, eol, eof
 } token_t;
+
+// Expression input stream
+static FILE *expin;
 
 static token_t nextToken;
 static int  nextChar;
@@ -72,11 +72,38 @@ void sexpr_init(void)
       t = symbol("T");
 
     // Read from stdin by default
-    expin = stdin;
+    open_input("stdin");
+}
+
+// Open new input stream
+FILE* open_input(char* fname)
+{
+    // Close previous stream if not stdin
+    close_input();
+
+    // stdin doesn't need to be opened
+    if (!strcmp(fname, "stdin")) {
+        expin = stdin;
+    } else {
+        if (!(expin = fopen(fname, "r"))) {
+            fprintf(stderr, "Cound not open input stream `%s`\n", fname);
+            exit(1);
+        }
+    }
 
     // Force gettoken() to read new line
     nextToken = eol;
     nextChar = 12;
+
+    return expin;
+}
+
+void close_input(void)
+{
+    // Might already be closed; ignore error
+    if (expin && expin != stdin) // Don't close stdin
+        fclose(expin);
+    expin = 0;
 }
 
 // Read in an S-expression

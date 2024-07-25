@@ -1,7 +1,5 @@
 #include "lispkit.h"
 
-extern FILE *expin;
-
 #ifdef  SYMBOL_TEST
 void symbol_test()
 {
@@ -44,17 +42,14 @@ void symbol_test()
 #ifdef  SECD_TEST
 void secd_test(void)
 {
-    FILE *savein = expin;
+    FILE* inp;
     int errs = 0;
 
-    expin = fopen("../tests/secd-tests.lisp", "r");
-    if (!expin) {
-        fprintf(stderr, "Could not open secd-tests.lisp\n");
-        exit(1);
-    }
-
     printf("\nTesting the SECD VM\n");
-    while (!feof(expin)) {
+
+    inp = open_input("../tests/secd-tests.lisp");
+
+    while (!feof(inp)) {
         sexpr_t src  = getexp();        // SECD "ASM" source
         if (src == nil) break;          // EOF?
         sexpr_t obj = getobj(src);      // SECD "OBJ" code
@@ -73,7 +68,8 @@ void secd_test(void)
         }
     }
 
-    fclose(expin);
+    close_input();
+
     if (!errs) printf("\nAll tests passed!\n");
     else {
         printf("\nThere %s %d error%s!\n",
@@ -87,17 +83,13 @@ void secd_test(void)
 #ifdef  COMPILER_TEST
 void compiler_test(sexpr_t comp)
 {
-    FILE *savein = expin;
+    FILE* inp;
     int errs = 0;
 
-    expin = fopen("../tests/compiler-tests.lisp", "r");
-    if (!expin) {
-        fprintf(stderr, "Could not open compiler-tests.lisp\n");
-        exit(1);
-    }
-
     printf("\nTesting the compiler\n");
-    while (!feof(expin)) {
+
+    inp = open_input("../tests/compiler-tests.lisp");
+    while (!feof(inp)) {
         sexpr_t src = getexp();         // Lisp source to be compiled
         sexpr_t exp = getexp();         // Expected object code
         if (src == nil) break;          // EOF?
@@ -114,13 +106,31 @@ void compiler_test(sexpr_t comp)
         }
     }
 
+    open_input("../tests/append.lisp");
+
+    sexpr_t src = getexp();         // Lisp source to be compiled
+    sexpr_t arg = getexp();         // List or arguments
+    sexpr_t exp = getexp();         // Expected result
+    sexpr_t obj = exec(comp, src);  // Object code
+    sexpr_t res = exec(obj, arg);   // Run the compiled code
+
+    close_input();
+    
+    printf("Test: "); putexp(src);
+    if (equalexp(exp,res)) printf(" Success!\n");
+    else {
+        printf(" ## ERROR ##");
+        printf("\n  Expected: "); putexp(exp);
+        printf("\n  Got:      "); putexp(res);
+        printf("\n");
+        ++errs;
+    }
+
     if (!errs) printf("\nAll tests passed!\n");
     else {
         printf("\nThere %s %d error%s!\n",
             errs == 1 ? "was" : "were", errs,
             errs == 1 ? "" : "s");
     }
-
-   expin = savein;
 }
 #endif

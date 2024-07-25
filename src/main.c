@@ -1,7 +1,6 @@
 #include "lispkit.h"
 
 extern sexpr_t* initial_sp;
-extern FILE *expin;
 
 static sexpr_t read_compiler(void);
 
@@ -22,8 +21,8 @@ int main()
 #endif
 
 #ifdef  SECD_TEST
-   secd_test();
-   return 0;
+    secd_test();
+    return 0;
 #endif
 
     sexpr_t comp = read_compiler();
@@ -33,7 +32,7 @@ int main()
     return 0;
 #endif
 
-    expin = stdin;
+    open_input("stdin");
     while (!feof(stdin)) {
         printf("> ");
         sexpr_t fun = getexp();
@@ -48,16 +47,9 @@ int main()
 
 static sexpr_t read_compiler(void)
 {
-    FILE *savein = expin;
-    expin = fopen("../src/compiler.secd-obj", "r");
-    if (!expin) {
-        fprintf(stderr, "Could not open compiler.secd-obj\n");
-        exit(1);
-    }
-
+    open_input("../src/compiler.secd-obj");
     sexpr_t c = getexp();
-    fclose(expin);
-    expin = savein;
+    close_input();
     return c;
 }
 

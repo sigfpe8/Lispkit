@@ -85,8 +85,10 @@ extern sexpr_t nil;
 extern sexpr_t f;
 extern sexpr_t t;
 extern bool    equalexp(sexpr_t e1, sexpr_t e2);
+extern void    close_input(void);
 extern sexpr_t getexp(void);
 extern sexpr_t getexplist(void);
+extern FILE*   open_input(char* fname);
 extern void    putexp(sexpr_t e);
 extern void    sexpr_init(void);
 
@@ -99,8 +101,8 @@ extern int   symbol_intern(char* symb);
 // Tests
 // Define only one at a time
 // #define SYMBOL_TEST
-#define SECD_TEST
-// #define COMPILER_TEST
+// #define SECD_TEST
+#define COMPILER_TEST
 extern void compiler_test(sexpr_t comp);
 extern void secd_test(void);
 extern void symbol_test();
