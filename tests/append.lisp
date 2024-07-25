@@ -4,5 +4,11 @@
       (CONS (CAR X)
             (APPEND (CDR X) Y)))))
 
+((A) (B C D))
+(A B C D)
+
+((A B C) (D))
+(A B C D)
+
 ((A B C D)  (E F G H))
 (A B C D E F G H)

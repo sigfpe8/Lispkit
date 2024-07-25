@@ -107,25 +107,66 @@ void compiler_test(sexpr_t comp)
         }
     }
 
-    open_input("../tests/append.lisp");
-
-    sexpr_t src = getexp();         // Lisp source to be compiled
-    sexpr_t arg = getexp();         // List or arguments
-    sexpr_t exp = getexp();         // Expected result
-    src = enlist(src);              // src is arg to comp so it must be a list
-    sexpr_t obj = exec(comp, src);  // Object code
-    sexpr_t res = exec(obj, arg);   // Run the compiled code
-
     close_input();
     
-    printf("Test: "); putexp(src);
-    if (equalexp(exp,res)) printf(" Success!\n");
+    if (!errs) printf("\nAll tests passed!\n");
     else {
-        printf(" ## ERROR ##");
-        printf("\n  Expected: "); putexp(exp);
-        printf("\n  Got:      "); putexp(res);
-        printf("\n");
-        ++errs;
+        printf("\nThere %s %d error%s!\n",
+            errs == 1 ? "was" : "were", errs,
+            errs == 1 ? "" : "s");
+    }
+
+}
+#endif
+
+#ifdef  FUNCTION_TEST
+static char* fun_files[] = {
+    "append.lisp",
+    "member.lisp",
+    "sum.lisp"
+};
+
+static int nfiles = sizeof(fun_files) / sizeof(fun_files[0]);
+
+void function_test(sexpr_t comp)
+{
+    char fname[256];
+    int errs = 0;
+
+    printf("\nTesting functions\n");
+
+    for (int i = 0; i < nfiles; ++i) {
+        strcpy(fname, "../tests/");
+        strcat(fname, fun_files[i]);
+        FILE* inp = open_input(fname);
+        // Function test files have a single function at the top
+        // followed by a sequence of:
+        //    - list of arguments
+        //    - expected result
+        printf("Testing '%s,\n", fname);
+        sexpr_t src = getexp();         // Function source to be compiled
+        src = enlist(src);              // src is arg to comp so it must be a list
+        sexpr_t obj = exec(comp, src);  // Function object code
+
+        while (!feof(inp)) {
+            sexpr_t arg = getexp();         // List or arguments
+            sexpr_t exp = getexp();         // Expected result
+            if (arg == nil) break;          // EOF?
+            sexpr_t res = exec(obj, arg);   // Run the compiled code
+
+            printf("  Test: "); putexp(arg);
+
+            if (equalexp(exp,res)) printf(" Success!\n");
+            else {
+                printf(" ## ERROR ##");
+                printf("\n  Expected: "); putexp(exp);
+                printf("\n  Got:      "); putexp(res);
+                printf("\n");
+                ++errs;
+            }
+        }
+
+        close_input();    
     }
 
     if (!errs) printf("\nAll tests passed!\n");

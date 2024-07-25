@@ -32,6 +32,11 @@ int main()
     return 0;
 #endif
 
+#ifdef  FUNCTION_TEST
+    function_test(comp);
+    return 0;
+#endif
+
     open_input("stdin");
     while (!feof(stdin)) {
         printf("> ");
