@@ -15,28 +15,25 @@ int main()
     cell_init();
     sexpr_init();
 
+    sexpr_t comp = read_compiler();
+
 #ifdef  SYMBOL_TEST
     symbol_test();
-    return 0;
 #endif
 
 #ifdef  SECD_TEST
     secd_test();
-    return 0;
 #endif
-
-    sexpr_t comp = read_compiler();
 
 #ifdef  COMPILER_TEST
     compiler_test(comp);
-    return 0;
 #endif
 
 #ifdef  FUNCTION_TEST
     function_test(comp);
-    return 0;
 #endif
 
+#ifndef _TESTS_
     open_input("stdin");
     while (!feof(stdin)) {
         printf("> ");
@@ -46,7 +43,9 @@ int main()
         sexpr_t obj = exec(comp, fun);
         putexp(obj); printf("\n");
     }
+#endif
 
+    cell_stats();
     return 0;
 }
 

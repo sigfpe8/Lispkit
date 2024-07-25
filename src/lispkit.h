@@ -75,6 +75,7 @@ extern sexpr_t d;      // Dump
 extern cell_t* cell_array;
 extern void    cell_init(void);
 extern int     cell_alloc(void);
+extern void    cell_stats(void);
 
 // secd.c
 extern sexpr_t exec(sexpr_t fn, sexpr_t args);
@@ -105,6 +106,9 @@ extern int   symbol_intern(char* symb);
 // #define SECD_TEST
 #define COMPILER_TEST
 // #define FUNCTION_TEST
+#if defined(SYMBOL_TEST) || defined(SECD_TEST) || defined(COMPILER_TEST) || defined(FUNCTION_TEST)
+#define _TESTS_
+#endif
 extern void compiler_test(sexpr_t comp);
 extern void function_test(sexpr_t comp);
 extern void secd_test(void);

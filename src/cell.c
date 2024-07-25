@@ -17,6 +17,8 @@
 cell_t*  cell_array;
 uint8_t* bit_array;
 int free_cell;
+int gc_calls;
+int alloc_calls;
 
 sexpr_t* initial_sp;
 sexpr_t* final_sp;
@@ -68,6 +70,7 @@ int cell_alloc(void)
     }
 
     free_cell = cell_array[ind].cdr;
+    ++alloc_calls;
     return ind;
 }
 
@@ -98,6 +101,15 @@ void cell_gc(void)
 
     // Now return all cells which are not marked to the free list
     cell_collect();
+    ++gc_calls;
+}
+
+// Display alloc/gc statistics
+void cell_stats(void)
+{
+    printf("\n");
+    printf("# of allocations: %d\n", alloc_calls);
+    printf("# of GC calls: %d\n", gc_calls);
 }
 
 // Scan the cpu stack marking live sexpr_t's
