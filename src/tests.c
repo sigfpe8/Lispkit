@@ -107,15 +107,30 @@ void compiler_test(sexpr_t comp)
         }
     }
 
+    printf("\nCompiling the compiler:");
+
+    open_input("../src/compiler.lisp");
+    sexpr_t src = getexp();         // Compiler source to be compiled
+    src = enlist(src);              // src is arg to comp so it must be a list
     close_input();
-    
+
+    sexpr_t obj = exec(comp, src);  // Result object code
+
+    if (equalexp(comp,obj)) printf(" Success!\n");
+    else {
+        printf(" ## ERROR ##");
+        printf("\n  Expected: "); putexp(comp);
+        printf("\n  Got:      "); putexp(obj);
+        printf("\n");
+        ++errs;
+    }
+
     if (!errs) printf("\nAll tests passed!\n");
     else {
         printf("\nThere %s %d error%s!\n",
             errs == 1 ? "was" : "were", errs,
             errs == 1 ? "" : "s");
     }
-
 }
 #endif
 

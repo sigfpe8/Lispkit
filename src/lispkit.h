@@ -103,8 +103,8 @@ extern int   symbol_intern(char* symb);
 // Define only one at a time
 // #define SYMBOL_TEST
 // #define SECD_TEST
-// #define COMPILER_TEST
-#define FUNCTION_TEST
+#define COMPILER_TEST
+// #define FUNCTION_TEST
 extern void compiler_test(sexpr_t comp);
 extern void function_test(sexpr_t comp);
 extern void secd_test(void);
